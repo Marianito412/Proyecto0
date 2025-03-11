@@ -29,3 +29,14 @@ void NorthWestBr(MagicSquare* Square, Coordinate* Coordinate){
     Coordinate->y +=1;
     WrapAround(Square, Coordinate);
 };
+
+void SouthWest(MagicSquare* Square, Coordinate* Coordinate){
+    Coordinate->y +=1;
+    Coordinate->x -=1;
+    WrapAround(Square, Coordinate);
+};
+
+void SouthWestBr(MagicSquare* Square, Coordinate* Coordinate){
+    Coordinate->y -=1;
+    WrapAround(Square, Coordinate);
+};
