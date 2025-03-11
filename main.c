@@ -7,9 +7,24 @@
 #include <stdbool.h>  // Para usar el tipo de dato 'bool'
 
 #include "Core/MagicSquare/MagicSquare.c"
+#include "Core/Moves/Moveset.c"
 
 void Test(GtkSpinButton* Button, gpointer UserData){
     printf("Value Changed");
+}
+
+void ProcessNextMove(MagicSquare* Square, Moveset* MoveSet, int i){
+    Coordinate NewCoords = Square->CurrentSlot;
+    MoveSet->Move(Square, &NewCoords);
+
+    if (GetValueAtCoords(Square, NewCoords) == 0){
+        MoveSet->Move(Square, &Square->CurrentSlot);
+    }
+    else{
+        MoveSet->BreakMove(Square, &Square->CurrentSlot);
+    }
+    printf("(%d, %d) -> %d\n", Square->CurrentSlot.x, Square->CurrentSlot.y, i);
+    SetCurrent(Square, i);
 }
 
 void UpdateGrid(GtkGrid* Grid, MagicSquare* Square){
@@ -20,7 +35,6 @@ void UpdateGrid(GtkGrid* Grid, MagicSquare* Square){
             gtk_spin_button_set_value(Button, Square->Grid[i][j]);
         }
     }
-    
 }
 
 int main(int argc, char *argv[]) {
@@ -28,10 +42,6 @@ int main(int argc, char *argv[]) {
     gtk_init(&argc, &argv);
 
     GtkBuilder* builder = gtk_builder_new_from_file ("Proyecto0.glade");
-
-    if (!builder){
-        printf("Builder failed");
-    }
 
     // Ventana principal
     GtkWidget* window = GTK_WIDGET(gtk_builder_get_object(builder, "Window"));
@@ -54,15 +64,27 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    //Setup Movesets
+    Moveset NorthEastMoveset = {NorthWest, NorthWestBr};
+    //NorthEastMoveset.Move = NorthWest;
+    //NorthEastMoveset.BreakMove = NorthWestBr;
+
     MagicSquare* Test = NewSquare(5,5);
-    Move(Test, -2, 2);
-    SetCurrent(Test, 4);
-    Print(Test);
+    Test->CurrentSlot.x = 1;
+    Test->CurrentSlot.y = 1;
 
-    UpdateGrid(GTK_GRID(Grid), Test);
+    Print(Test);    
 
-    gtk_widget_show_all(window);
-    gtk_main();
+    for (int i = 1; i<=5*5; i++){
+        printf("\n\n");
+        ProcessNextMove(Test, &NorthEastMoveset, i);
+        Print(Test);
+    }
+
+    //UpdateGrid(GTK_GRID(Grid), Test);
+
+    //gtk_widget_show_all(window);
+    //gtk_main();
 
     free(Test);
 

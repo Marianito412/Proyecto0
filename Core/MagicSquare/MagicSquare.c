@@ -1,17 +1,20 @@
-//#include "MagicSquare.h"
+#pragma once
 
-typedef struct Coordinate{
+struct Coordinate{
     int x;
     int y;
-} Coordinate;
+};
 
-typedef struct MagicSquare
-{
+typedef struct Coordinate Coordinate;
+
+struct MagicSquare{
     int Width;
     int Height;
     Coordinate CurrentSlot;
     int** Grid;
-} MagicSquare;
+};
+
+typedef struct MagicSquare MagicSquare;
 
 /*Constructor*/
 MagicSquare* NewSquare(int Width, int Height){
@@ -37,19 +40,21 @@ MagicSquare* NewSquare(int Width, int Height){
 }
 
 /*Private*/
-void WrapAround(MagicSquare* Square){
-    if (Square->CurrentSlot.x >= Square->Width){
-        Square->CurrentSlot.x -= Square->Width;
+void WrapAround(MagicSquare* Square, Coordinate* Coords){
+    //Horizontal borders
+    if (Coords->x >= Square->Width){
+        Coords->x -= Square->Width;
     }
-    if (Square->CurrentSlot.x < 0){
-        Square->CurrentSlot.x += Square->Width;
+    if (Coords->x < 0){
+        Coords->x += Square->Width;
     }
 
-    if (Square->CurrentSlot.y >= Square->Height){
-        Square->CurrentSlot.x -= Square->Height;
+    //Vertical borders
+    if (Coords->y >= Square->Height){
+        Coords->y -= Square->Height;
     }
-    if (Square->CurrentSlot.x < 0){
-        Square->CurrentSlot.x += Square->Height;
+    if (Coords->y < 0){
+        Coords->y += Square->Height;
     }
 }
 
@@ -57,11 +62,22 @@ void WrapAround(MagicSquare* Square){
 void Move(MagicSquare* Square, int horizontal, int vertical){
     Square->CurrentSlot.x += horizontal;
     Square->CurrentSlot.y += vertical;
-    WrapAround(Square);
+    WrapAround(Square, &Square->CurrentSlot);
+}
+
+void ApplyMoveToCoords(MagicSquare* Square, Coordinate* Coords, int horizontal, int vertical){
+    Coords->x += horizontal;
+    Coords->y += vertical;
+    WrapAround(Square, Coords);
 }
 
 int GetCurrent(MagicSquare* Square){
     int a = Square->Grid[Square->CurrentSlot.x][Square->CurrentSlot.y];
+    return a;
+}
+
+int GetValueAtCoords(MagicSquare* Square, Coordinate Coords){
+    int a = Square->Grid[Coords.x][Coords.y];
     return a;
 }
 
@@ -70,9 +86,14 @@ void SetCurrent(MagicSquare* Square, int NewValue){
 }
 
 void Print(MagicSquare* Square){
-    for (int i = 0; i < Square->Height;i++){
+    for (int i = 0; i < Square->Height; i++){
         for (int j = 0; j < Square->Width; j++){
-            printf("%d\t", Square->Grid[j][i]);
+            if (Square->CurrentSlot.y == i && Square->CurrentSlot.x == j){
+                printf("%d*\t", Square->Grid[j][i]);
+            }
+            else{
+                printf("%d\t", Square->Grid[j][i]);
+            }
         }
         printf("\n");
     }
