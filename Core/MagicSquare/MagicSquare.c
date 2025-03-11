@@ -1,11 +1,11 @@
 //#include "MagicSquare.h"
 
-typedef struct{
+typedef struct Coordinate{
     int x;
     int y;
 } Coordinate;
 
-typedef struct
+typedef struct MagicSquare
 {
     int Width;
     int Height;

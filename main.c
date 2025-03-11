@@ -12,6 +12,17 @@ void Test(GtkSpinButton* Button, gpointer UserData){
     printf("Value Changed");
 }
 
+void UpdateGrid(GtkGrid* Grid, MagicSquare* Square){
+    for (int i = 0; i<Square->Height;i++){
+        for(int j = 0; j<Square->Width;j++){
+            GtkWidget* Test = gtk_grid_get_child_at(Grid, j, i);
+            GtkSpinButton* Button = GTK_SPIN_BUTTON(Test);
+            gtk_spin_button_set_value(Button, Square->Grid[i][j]);
+        }
+    }
+    
+}
+
 int main(int argc, char *argv[]) {
     srand(time(NULL));  // Inicializar la semilla del generador de números aleatorios
     gtk_init(&argc, &argv);
@@ -47,6 +58,8 @@ int main(int argc, char *argv[]) {
     Move(Test, -2, 2);
     SetCurrent(Test, 4);
     Print(Test);
+
+    UpdateGrid(GTK_GRID(Grid), Test);
 
     gtk_widget_show_all(window);
     gtk_main();
