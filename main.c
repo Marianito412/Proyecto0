@@ -40,6 +40,44 @@ void UpdateGrid(GtkGrid* Grid, MagicSquare* Square){
     }
 }
 
+/* Función para calcular la suma de filas, columnas y diagonales */
+void CalculateSums(MagicSquare* Square) {
+    int sum = 0;
+    int magicConstant = Square->Width * (Square->Width * Square->Width + 1) / 2;
+
+    // Sumar filas
+    for (int i = 0; i < Square->Height; i++) {
+        sum = 0;
+        for (int j = 0; j < Square->Width; j++) {
+            sum += Square->Grid[i][j];
+        }
+        printf("Fila %d: %d\n", i + 1, sum);
+    }
+
+    // Sumar columnas
+    for (int j = 0; j < Square->Width; j++) {
+        sum = 0;
+        for (int i = 0; i < Square->Height; i++) {
+            sum += Square->Grid[i][j];
+        }
+        printf("Columna %d: %d\n", j + 1, sum);
+    }
+
+    // Sumar diagonal principal
+    sum = 0;
+    for (int i = 0; i < Square->Height; i++) {
+        sum += Square->Grid[i][i];
+    }
+    printf("\nSuma de la diagonal principal: %d\n", sum);
+
+    // Sumar diagonal secundaria
+    sum = 0;
+    for (int i = 0; i < Square->Height; i++) {
+        sum += Square->Grid[i][Square->Width - 1 - i];
+    }
+    printf("Suma de la diagonal secundaria: %d\n", sum);
+}
+
 int main(int argc, char *argv[]) {
     srand(time(NULL));  // Inicializar la semilla del generador de números aleatorios
     gtk_init(&argc, &argv);
@@ -81,6 +119,8 @@ int main(int argc, char *argv[]) {
         ProcessNextMove(Test, &NorthWestMoveset, i);
         Print(Test);
     }
+
+    CalculateSums(square);
 
     UpdateGrid(GTK_GRID(Grid), Test);
 
