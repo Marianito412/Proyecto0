@@ -8,6 +8,7 @@ typedef struct Moveset{
     void (*BreakMove)(MagicSquare*, Coordinate*);
 } Moveset;
 
+//North east move
 void NorthEast(MagicSquare* Square, Coordinate* Coordinate){
     Coordinate->y -=1;
     Coordinate->x +=1;
@@ -19,6 +20,7 @@ void NorthEastBr(MagicSquare* Square, Coordinate* Coordinate){
     WrapAround(Square, Coordinate);
 };
 
+//North west move
 void NorthWest(MagicSquare* Square, Coordinate* Coordinate){
     Coordinate->y -=1;
     Coordinate->x -=1;
@@ -30,6 +32,7 @@ void NorthWestBr(MagicSquare* Square, Coordinate* Coordinate){
     WrapAround(Square, Coordinate);
 };
 
+//South west move
 void SouthWest(MagicSquare* Square, Coordinate* Coordinate){
     Coordinate->y +=1;
     Coordinate->x -=1;
@@ -38,5 +41,18 @@ void SouthWest(MagicSquare* Square, Coordinate* Coordinate){
 
 void SouthWestBr(MagicSquare* Square, Coordinate* Coordinate){
     Coordinate->y -=1;
+    WrapAround(Square, Coordinate);
+};
+
+//L Move
+void NorthEastL(MagicSquare* Square, Coordinate* Coordinate){
+    Coordinate->y -=2;
+    Coordinate->x +=1;
+    WrapAround(Square, Coordinate);
+};
+
+void NorthEeastLBr(MagicSquare* Square, Coordinate* Coordinate){
+    Coordinate->y -=1;
+    Coordinate->x -=1;
     WrapAround(Square, Coordinate);
 };

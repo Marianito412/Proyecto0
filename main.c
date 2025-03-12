@@ -65,9 +65,9 @@ int main(int argc, char *argv[]) {
     }
 
     //Setup Movesets
-    Moveset NorthEastMoveset = {NorthWest, NorthWestBr};
-    //NorthEastMoveset.Move = NorthWest;
-    //NorthEastMoveset.BreakMove = NorthWestBr;
+    Moveset NorthWestMoveset = {NorthWest, NorthWestBr};
+    Moveset SouthWestMoveset = {SouthWest, SouthWestBr};
+    Moveset NorthEastLMoveset = {NorthEastL, NorthEeastLBr};
 
     MagicSquare* Test = NewSquare(5,5);
     Test->CurrentSlot.x = 1;
@@ -77,7 +77,7 @@ int main(int argc, char *argv[]) {
 
     for (int i = 1; i<=5*5; i++){
         printf("\n\n");
-        ProcessNextMove(Test, &NorthEastMoveset, i);
+        ProcessNextMove(Test, &NorthWestMoveset, i);
         Print(Test);
     }
 
