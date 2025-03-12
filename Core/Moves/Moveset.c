@@ -32,6 +32,18 @@ void NorthWestBr(MagicSquare* Square, Coordinate* Coordinate){
     WrapAround(Square, Coordinate);
 };
 
+// South east move
+void SouthEast(MagicSquare* Square, Coordinate* Coordinate) {
+    Coordinate->y += 1;
+    Coordinate->x += 1;
+    WrapAround(Square, Coordinate);
+}
+
+void SouthEastBr(MagicSquare* Square, Coordinate* Coordinate) {
+    Coordinate->y -= 1;
+    WrapAround(Square, Coordinate);
+}
+
 //South west move
 void SouthWest(MagicSquare* Square, Coordinate* Coordinate){
     Coordinate->y +=1;
