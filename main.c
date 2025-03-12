@@ -28,11 +28,14 @@ void ProcessNextMove(MagicSquare* Square, Moveset* MoveSet, int i){
 }
 
 void UpdateGrid(GtkGrid* Grid, MagicSquare* Square){
-    for (int i = 0; i<Square->Height;i++){
-        for(int j = 0; j<Square->Width;j++){
-            GtkWidget* Test = gtk_grid_get_child_at(Grid, j, i);
-            GtkSpinButton* Button = GTK_SPIN_BUTTON(Test);
-            gtk_spin_button_set_value(Button, Square->Grid[i][j]);
+    for (int i = 0; i < Square->Height; i++) {
+        for(int j = 0; j < Square->Width; j++) {
+            GtkWidget* widget = gtk_grid_get_child_at(Grid, j, i);
+            if (GTK_IS_LABEL(widget)) {
+                char buffer[10];
+                snprintf(buffer, sizeof(buffer), "%d", Square->Grid[i][j]);
+                gtk_label_set_text(GTK_LABEL(widget), buffer);
+            }
         }
     }
 }
@@ -55,11 +58,9 @@ int main(int argc, char *argv[]) {
         gtk_grid_insert_row(GTK_GRID(Grid), 1);
     }
 
-    for(int i = 0; i<5; i++)
-    {
-        for(int j = 0; j<5; j++){
-            GtkWidget* Number = gtk_spin_button_new_with_range(0,10000,1);
-            g_signal_connect(Number, "value-changed", G_CALLBACK(Test), NULL);
+    for(int i = 0; i < 5; i++) {
+        for(int j = 0; j < 5; j++) {
+            GtkWidget* Number = gtk_label_new("0");
             gtk_grid_attach(GTK_GRID(Grid), Number, i, j, 1, 1);
         }
     }
@@ -81,10 +82,10 @@ int main(int argc, char *argv[]) {
         Print(Test);
     }
 
-    //UpdateGrid(GTK_GRID(Grid), Test);
+    UpdateGrid(GTK_GRID(Grid), Test);
 
-    //gtk_widget_show_all(window);
-    //gtk_main();
+    gtk_widget_show_all(window);
+    gtk_main();
 
     free(Test);
 
