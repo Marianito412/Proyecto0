@@ -2,29 +2,6 @@
 <!-- Generated with glade 3.40.0 -->
 <interface>
   <requires lib="gtk+" version="3.24"/>
-  <object class="GtkListStore" id="liststore1">
-    <columns>
-      <!-- column-name Moveset -->
-      <column type="gchararray"/>
-    </columns>
-    <data>
-      <row>
-        <col id="0" translatable="yes">NorthWest</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">NorthEast</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">SouthWest</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">SouthEast</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">NorthEastL</col>
-      </row>
-    </data>
-  </object>
   <object class="GtkWindow" id="Window">
     <property name="name">Window</property>
     <property name="can-focus">True</property>
@@ -47,6 +24,9 @@
             <property name="can-focus">False</property>
             <property name="row-homogeneous">True</property>
             <property name="column-homogeneous">True</property>
+            <child>
+              <placeholder/>
+            </child>
           </object>
           <packing>
             <property name="resize">True</property>
@@ -102,26 +82,11 @@
                 <property name="halign">center</property>
                 <property name="valign">center</property>
                 <property name="hexpand">True</property>
+                <signal name="clicked" handler="OnNextPressed" swapped="no"/>
                 <signal name="pressed" handler="OnNextPressed" swapped="no"/>
               </object>
               <packing>
                 <property name="left-attach">0</property>
-                <property name="top-attach">2</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkButton" id="CompleteButton">
-                <property name="label" translatable="yes">Complete everything</property>
-                <property name="visible">True</property>
-                <property name="can-focus">True</property>
-                <property name="receives-default">True</property>
-                <property name="halign">center</property>
-                <property name="valign">center</property>
-                <property name="hexpand">True</property>
-                <signal name="pressed" handler="OnCompletePressed" swapped="no"/>
-              </object>
-              <packing>
-                <property name="left-attach">1</property>
                 <property name="top-attach">2</property>
               </packing>
             </child>
@@ -146,19 +111,41 @@
               </packing>
             </child>
             <child>
-              <object class="GtkComboBox" id="MoveSet">
+              <object class="GtkButton" id="CompleteButton">
+                <property name="label" translatable="yes">Complete everything</property>
                 <property name="visible">True</property>
-                <property name="can-focus">False</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
                 <property name="halign">center</property>
                 <property name="valign">center</property>
                 <property name="hexpand">True</property>
-                <property name="model">liststore1</property>
+                <signal name="clicked" handler="OnCompletePressed" swapped="no"/>
+                <signal name="pressed" handler="OnCompletePressed" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">1</property>
+                <property name="top-attach">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkComboBoxText" id="Moveset">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="active">0</property>
                 <property name="has-entry">True</property>
-                <property name="entry-text-column">0</property>
+                <items>
+                  <item translatable="yes">NorthWest</item>
+                  <item translatable="yes">NorthEast</item>
+                  <item translatable="yes">SouthWest</item>
+                  <item translatable="yes">SouthEast</item>
+                  <item translatable="yes">NorthEastL</item>
+                </items>
                 <child internal-child="entry">
                   <object class="GtkEntry">
                     <property name="can-focus">False</property>
                     <property name="editable">False</property>
+                    <property name="text" translatable="yes">NorthWest</property>
+                    <signal name="changed" handler="OnMovesetChanged" swapped="no"/>
                   </object>
                 </child>
               </object>
@@ -175,5 +162,28 @@
         </child>
       </object>
     </child>
+  </object>
+  <object class="GtkListStore" id="liststore1">
+    <columns>
+      <!-- column-name Moveset -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes">NorthWest</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">NorthEast</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">SouthWest</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">SouthEast</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">NorthEastL</col>
+      </row>
+    </data>
   </object>
 </interface>

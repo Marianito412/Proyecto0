@@ -18,6 +18,7 @@ Moveset SouthEastMoveset = {SouthEast, SouthEastBr};
 Moveset NorthEastLMoveset = {NorthEastL, NorthEeastLBr};
 
 MagicSquare* GlobalSquare = NULL;
+Moveset* CurrentMoveset = &NorthWestMoveset;
 
 GtkPaned* Paned = NULL;
 GtkGrid* GlobalGrid = NULL;
@@ -27,12 +28,13 @@ void Test(GtkSpinButton* Button, gpointer UserData){
     printf("Value Changed");
 }
 
-Moveset GetMoveset(gchararray moveset){
-    if (moveset == "NorthWest") return NorthWestMoveset;
-    if (moveset == "NorthEast") return NorthEastMoveset;
-    if (moveset == "SouthWest") return SouthWestMoveset;
-    if (moveset == "SouthEast") return SouthEastMoveset;
-    if (moveset == "NorthEastL") return NorthEastLMoveset;
+Moveset* GetMoveset(gchararray moveset){
+    if (strcmp(moveset, "NorthWest") == 0) return &NorthWestMoveset;
+    if (strcmp(moveset, "NorthEast") == 0) return &NorthEastMoveset;
+    if (strcmp(moveset, "SouthWest") == 0) return &SouthWestMoveset;
+    if (strcmp(moveset, "SouthEast") == 0) return &SouthEastMoveset;
+    if (strcmp(moveset, "NorthEastL") == 0) return &NorthEastLMoveset;
+    printf("Failed to select moveset");
 }
 
 void ProcessNextMove(MagicSquare* Square, Moveset* MoveSet, int i){
@@ -52,12 +54,14 @@ void ProcessNextMove(MagicSquare* Square, Moveset* MoveSet, int i){
 
 void UpdateGrid(GtkGrid* Grid, MagicSquare* Square){
     for (int i = 0; i < Square->Height; i++) {
+
         for(int j = 0; j < Square->Width; j++) {
+
             GtkWidget* widget = gtk_grid_get_child_at(Grid, j, i);
             if (GTK_IS_LABEL(widget)) {
                 char buffer[10];
-                snprintf(buffer, sizeof(buffer), "%d", Square->Grid[i][j]);
-                printf("(%d, %d) -> %d\n", j, i, Square->Grid[i][j]);
+                snprintf(buffer, sizeof(buffer), "%d", Square->Grid[j][i]);
+                printf("(%d, %d) -> %d\n", j, i, Square->Grid[j][i]);
                 gtk_label_set_text(GTK_LABEL(widget), buffer);
             }
         }
@@ -151,21 +155,25 @@ void OnOrderChanged(GtkSpinButton* spinButton, gpointer UserData){
 
 static void OnNextPressed(GtkButton* Button, gpointer UserData){
     g_print("Test");
-    ProcessNextMove(GlobalSquare, &NorthEastMoveset, CurrentNumber);
+    ProcessNextMove(GlobalSquare, CurrentMoveset, CurrentNumber);
     CurrentNumber++;
     UpdateGrid(GlobalGrid, GlobalSquare);
 }
 
 static void OnCompletePressed(GtkButton* Button, gpointer UserData){
     while (CurrentNumber <= GlobalSquare->Width*GlobalSquare->Width){
-        ProcessNextMove(GlobalSquare, &NorthEastMoveset, CurrentNumber);
+        ProcessNextMove(GlobalSquare, CurrentMoveset, CurrentNumber);
         CurrentNumber++;
     }
     UpdateGrid(GlobalGrid, GlobalSquare);
-    g_print("Test");
 
     Print(GlobalSquare);
     CalculateSums(GlobalSquare);
+}
+
+void OnMovesetChanged(GtkComboBoxText* ComboBox){
+    CurrentMoveset = GetMoveset(gtk_combo_box_text_get_active_text(ComboBox));
+    g_print("New Moveset: %s", gtk_combo_box_text_get_active_text(ComboBox));
 }
 
 int main(int argc, char *argv[]) {
@@ -178,15 +186,6 @@ int main(int argc, char *argv[]) {
     GtkWidget* window = GTK_WIDGET(gtk_builder_get_object(builder, "Window"));
     g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
 
-    //Buttons
-    GtkButton* Next = GTK_BUTTON(gtk_builder_get_object(builder, "NextButton"));
-    if (!Next) printf("Fuck");
-    g_signal_connect(Next, "clicked", G_CALLBACK(OnNextPressed), NULL);
-
-    GtkButton* Complete = GTK_BUTTON(gtk_builder_get_object(builder, "CompleteButton"));
-    if (!Complete) printf("Fuck");
-    g_signal_connect(Complete, "clicked", G_CALLBACK(OnCompletePressed), NULL);
-
     //Grid
     Paned = GTK_PANED(gtk_builder_get_object(builder, "Paned"));
     GlobalGrid = GTK_GRID(gtk_builder_get_object(builder, "Grid"));
@@ -196,6 +195,18 @@ int main(int argc, char *argv[]) {
     gtk_spin_button_set_range(Order, 3, 21);
     g_signal_connect(Order, "value-changed", G_CALLBACK(OnOrderChanged), NULL);
     gtk_spin_button_set_value(Order, 5);
+
+    //Moveset
+    GtkComboBoxText* MovesetBox = GTK_COMBO_BOX_TEXT(gtk_builder_get_object(builder, "Moveset"));
+    g_signal_connect(MovesetBox, "changed", G_CALLBACK(OnMovesetChanged), NULL);
+
+
+    //Buttons
+    GtkButton* Next = GTK_BUTTON(gtk_builder_get_object(builder, "NextButton"));
+    g_signal_connect(Next, "clicked", G_CALLBACK(OnNextPressed), NULL);
+
+    GtkButton* Complete = GTK_BUTTON(gtk_builder_get_object(builder, "CompleteButton"));
+    g_signal_connect(Complete, "clicked", G_CALLBACK(OnCompletePressed), NULL);
 
     GlobalSquare->CurrentSlot.y = 0;
     GlobalSquare->CurrentSlot.x = (GlobalSquare->Width/2);

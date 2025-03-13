@@ -97,10 +97,10 @@ void Print(MagicSquare* Square){
     for (int i = 0; i < Square->Height; i++){
         for (int j = 0; j < Square->Width; j++){
             if (Square->CurrentSlot.y == i && Square->CurrentSlot.x == j){
-                printf("%d*\t", Square->Grid[i][j]);
+                printf("%d*\t", Square->Grid[j][i]);
             }
             else{
-                printf("%d\t", Square->Grid[i][j]);
+                printf("%d\t", Square->Grid[j][i]);
             }
         }
         printf("\n");
