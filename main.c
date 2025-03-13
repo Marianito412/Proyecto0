@@ -23,6 +23,59 @@ Moveset* CurrentMoveset = &NorthWestMoveset;
 GtkPaned* Paned = NULL;
 GtkGrid* GlobalGrid = NULL;
 
+GtkLabel* sums = NULL;  // Etiqueta para mostrar todas las sumas
+
+// Función para actualizar las sumas en la interfaz
+void UpdateSums(MagicSquare* Square) {
+    int sum = 0;
+    int magicConstant = Square->Width * (Square->Width * Square->Width + 1) / 2;
+
+    // Buffer para almacenar el texto de las sumas
+    char sumsText[1000] = "";  // Ajusta el tamaño según sea necesario
+    char buffer[100];  // Buffer temporal para formatear cada suma
+
+    // Sumar filas
+    strcat(sumsText, "Sumas de filas:\n");
+    for (int i = 0; i < Square->Height; i++) {
+        sum = 0;
+        for (int j = 0; j < Square->Width; j++) {
+            sum += Square->Grid[i][j];
+        }
+        snprintf(buffer, sizeof(buffer), "Fila %d: %d\n", i + 1, sum);
+        strcat(sumsText, buffer);
+    }
+
+    // Sumar columnas
+    strcat(sumsText, "\nSumas de columnas:\n");
+    for (int j = 0; j < Square->Width; j++) {
+        sum = 0;
+        for (int i = 0; i < Square->Height; i++) {
+            sum += Square->Grid[i][j];
+        }
+        snprintf(buffer, sizeof(buffer), "Columna %d: %d\n", j + 1, sum);
+        strcat(sumsText, buffer);
+    }
+
+    // Sumar diagonal principal
+    sum = 0;
+    for (int i = 0; i < Square->Height; i++) {
+        sum += Square->Grid[i][i];
+    }
+    snprintf(buffer, sizeof(buffer), "\nSuma de la diagonal principal: %d\n", sum);
+    strcat(sumsText, buffer);
+
+    // Sumar diagonal secundaria
+    sum = 0;
+    for (int i = 0; i < Square->Height; i++) {
+        sum += Square->Grid[i][Square->Width - 1 - i];
+    }
+    snprintf(buffer, sizeof(buffer), "Suma de la diagonal secundaria: %d\n", sum);
+    strcat(sumsText, buffer);
+
+    // Actualizar el texto del GtkLabel
+    gtk_label_set_text(sums, sumsText);
+}
+
 
 void Test(GtkSpinButton* Button, gpointer UserData){
     printf("Value Changed");
@@ -68,43 +121,6 @@ void UpdateGrid(GtkGrid* Grid, MagicSquare* Square){
     }
 }
 
-/* Función para calcular la suma de filas, columnas y diagonales */
-void CalculateSums(MagicSquare* Square) {
-    int sum = 0;
-    int magicConstant = Square->Width * (Square->Width * Square->Width + 1) / 2;
-
-    // Sumar filas
-    for (int i = 0; i < Square->Height; i++) {
-        sum = 0;
-        for (int j = 0; j < Square->Width; j++) {
-            sum += Square->Grid[i][j];
-        }
-        printf("Fila %d: %d\n", i + 1, sum);
-    }
-
-    // Sumar columnas
-    for (int j = 0; j < Square->Width; j++) {
-        sum = 0;
-        for (int i = 0; i < Square->Height; i++) {
-            sum += Square->Grid[i][j];
-        }
-        printf("Columna %d: %d\n", j + 1, sum);
-    }
-
-    // Sumar diagonal principal
-    sum = 0;
-    for (int i = 0; i < Square->Height; i++) {
-        sum += Square->Grid[i][i];
-    }
-    printf("\nSuma de la diagonal principal: %d\n", sum);
-
-    // Sumar diagonal secundaria
-    sum = 0;
-    for (int i = 0; i < Square->Height; i++) {
-        sum += Square->Grid[i][Square->Width - 1 - i];
-    }
-    printf("Suma de la diagonal secundaria: %d\n", sum);
-}
 
 void OnOrderChanged(GtkSpinButton* spinButton, gpointer UserData){
     
@@ -158,6 +174,8 @@ static void OnNextPressed(GtkButton* Button, gpointer UserData){
     ProcessNextMove(GlobalSquare, CurrentMoveset, CurrentNumber);
     CurrentNumber++;
     UpdateGrid(GlobalGrid, GlobalSquare);
+    UpdateSums(GlobalSquare);  
+
 }
 
 static void OnCompletePressed(GtkButton* Button, gpointer UserData){
@@ -166,9 +184,10 @@ static void OnCompletePressed(GtkButton* Button, gpointer UserData){
         CurrentNumber++;
     }
     UpdateGrid(GlobalGrid, GlobalSquare);
+    UpdateSums(GlobalSquare);  
+
 
     Print(GlobalSquare);
-    CalculateSums(GlobalSquare);
 }
 
 void OnMovesetChanged(GtkComboBoxText* ComboBox){
@@ -185,6 +204,8 @@ int main(int argc, char *argv[]) {
     // Ventana principal
     GtkWidget* window = GTK_WIDGET(gtk_builder_get_object(builder, "Window"));
     g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
+
+    sums = GTK_LABEL(gtk_builder_get_object(builder, "sums"));
 
     //Grid
     Paned = GTK_PANED(gtk_builder_get_object(builder, "Paned"));
@@ -207,6 +228,9 @@ int main(int argc, char *argv[]) {
 
     GtkButton* Complete = GTK_BUTTON(gtk_builder_get_object(builder, "CompleteButton"));
     g_signal_connect(Complete, "clicked", G_CALLBACK(OnCompletePressed), NULL);
+
+    UpdateSums(GlobalSquare);
+
 
     GlobalSquare->CurrentSlot.y = 0;
     GlobalSquare->CurrentSlot.x = (GlobalSquare->Width/2);

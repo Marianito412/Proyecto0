@@ -17,13 +17,37 @@
         <property name="position">800</property>
         <property name="position-set">True</property>
         <child>
-          <!-- n-columns=0 n-rows=0 -->
+          <!-- n-columns=3 n-rows=3 -->
           <object class="GtkGrid" id="Grid">
             <property name="name">Grid</property>
             <property name="visible">True</property>
             <property name="can-focus">False</property>
             <property name="row-homogeneous">True</property>
             <property name="column-homogeneous">True</property>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
             <child>
               <placeholder/>
             </child>
@@ -158,6 +182,7 @@
               <object class="GtkScrolledWindow">
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
+                <property name="margin-bottom">1</property>
                 <property name="vscrollbar-policy">always</property>
                 <property name="shadow-type">in</property>
                 <property name="max-content-height">100</property>
@@ -168,7 +193,7 @@
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <child>
-                      <object class="GtkLabel">
+                      <object class="GtkLabel" id="sums">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
                         <property name="label" translatable="yes">label</property>
