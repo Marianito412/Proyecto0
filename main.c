@@ -146,7 +146,7 @@ void OnOrderChanged(GtkSpinButton* spinButton, gpointer UserData){
         gtk_grid_remove_column(GlobalGrid, i);
     }
 
-    for(int i = 0; i<NewOrder; i++)
+    for(int i = 0; i< NewOrder; i++)
     {
         printf("added: %d\n", i);
         gtk_grid_insert_column(GlobalGrid, i);
