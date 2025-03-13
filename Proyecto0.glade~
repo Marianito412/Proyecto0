@@ -40,40 +40,13 @@
         <property name="position">800</property>
         <property name="position-set">True</property>
         <child>
-          <!-- n-columns=3 n-rows=3 -->
+          <!-- n-columns=0 n-rows=0 -->
           <object class="GtkGrid" id="Grid">
             <property name="name">Grid</property>
             <property name="visible">True</property>
             <property name="can-focus">False</property>
             <property name="row-homogeneous">True</property>
             <property name="column-homogeneous">True</property>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
           </object>
           <packing>
             <property name="resize">True</property>
@@ -129,6 +102,7 @@
                 <property name="halign">center</property>
                 <property name="valign">center</property>
                 <property name="hexpand">True</property>
+                <signal name="pressed" handler="OnNextPressed" swapped="no"/>
               </object>
               <packing>
                 <property name="left-attach">0</property>
@@ -144,6 +118,7 @@
                 <property name="halign">center</property>
                 <property name="valign">center</property>
                 <property name="hexpand">True</property>
+                <signal name="pressed" handler="OnCompletePressed" swapped="no"/>
               </object>
               <packing>
                 <property name="left-attach">1</property>

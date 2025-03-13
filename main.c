@@ -9,7 +9,7 @@
 #include "Core/MagicSquare/MagicSquare.c"
 #include "Core/Moves/Moveset.c"
 
-int CurrentNumber = 0;
+int CurrentNumber = 1;
 
 Moveset NorthWestMoveset = {NorthWest, NorthWestBr};
 Moveset NorthEastMoveset = {NorthEast, NorthEastBr};
@@ -36,6 +36,8 @@ Moveset GetMoveset(gchararray moveset){
 }
 
 void ProcessNextMove(MagicSquare* Square, Moveset* MoveSet, int i){
+    if (i > Square->Width* Square->Width) return;
+    SetCurrent(Square, i);
     Coordinate NewCoords = Square->CurrentSlot;
     MoveSet->Move(Square, &NewCoords);
 
@@ -46,7 +48,6 @@ void ProcessNextMove(MagicSquare* Square, Moveset* MoveSet, int i){
         MoveSet->BreakMove(Square, &Square->CurrentSlot);
     }
     printf("(%d, %d) -> %d\n", Square->CurrentSlot.x, Square->CurrentSlot.y, i);
-    SetCurrent(Square, i);
 }
 
 void UpdateGrid(GtkGrid* Grid, MagicSquare* Square){
@@ -143,9 +144,28 @@ void OnOrderChanged(GtkSpinButton* spinButton, gpointer UserData){
     gtk_grid_set_row_homogeneous(GlobalGrid, true);
     gtk_grid_set_column_homogeneous(GlobalGrid, true);
 
-    gtk_widget_queue_draw(GlobalGrid);
+    gtk_widget_queue_draw(GTK_WIDGET(GlobalGrid));
 
     //UpdateGrid(GlobalGrid, GlobalSquare);
+}
+
+static void OnNextPressed(GtkButton* Button, gpointer UserData){
+    g_print("Test");
+    ProcessNextMove(GlobalSquare, &NorthEastMoveset, CurrentNumber);
+    CurrentNumber++;
+    UpdateGrid(GlobalGrid, GlobalSquare);
+}
+
+static void OnCompletePressed(GtkButton* Button, gpointer UserData){
+    while (CurrentNumber <= GlobalSquare->Width*GlobalSquare->Width){
+        ProcessNextMove(GlobalSquare, &NorthEastMoveset, CurrentNumber);
+        CurrentNumber++;
+    }
+    UpdateGrid(GlobalGrid, GlobalSquare);
+    g_print("Test");
+
+    Print(GlobalSquare);
+    CalculateSums(GlobalSquare);
 }
 
 int main(int argc, char *argv[]) {
@@ -158,6 +178,15 @@ int main(int argc, char *argv[]) {
     GtkWidget* window = GTK_WIDGET(gtk_builder_get_object(builder, "Window"));
     g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
 
+    //Buttons
+    GtkButton* Next = GTK_BUTTON(gtk_builder_get_object(builder, "NextButton"));
+    if (!Next) printf("Fuck");
+    g_signal_connect(Next, "clicked", G_CALLBACK(OnNextPressed), NULL);
+
+    GtkButton* Complete = GTK_BUTTON(gtk_builder_get_object(builder, "CompleteButton"));
+    if (!Complete) printf("Fuck");
+    g_signal_connect(Complete, "clicked", G_CALLBACK(OnCompletePressed), NULL);
+
     //Grid
     Paned = GTK_PANED(gtk_builder_get_object(builder, "Paned"));
     GlobalGrid = GTK_GRID(gtk_builder_get_object(builder, "Grid"));
@@ -168,7 +197,9 @@ int main(int argc, char *argv[]) {
     g_signal_connect(Order, "value-changed", G_CALLBACK(OnOrderChanged), NULL);
     gtk_spin_button_set_value(Order, 5);
 
-    //
+    GlobalSquare->CurrentSlot.y = 0;
+    GlobalSquare->CurrentSlot.x = (GlobalSquare->Width/2);
+    Print(GlobalSquare);
 
     /*
     GlobalGrid = GTK_GRID(gtk_builder_get_object(builder, "Grid"));

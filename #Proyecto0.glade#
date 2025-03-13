@@ -111,23 +111,6 @@
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="CompleteButton">
-                <property name="label" translatable="yes">Complete everything</property>
-                <property name="visible">True</property>
-                <property name="can-focus">True</property>
-                <property name="receives-default">True</property>
-                <property name="halign">center</property>
-                <property name="valign">center</property>
-                <property name="hexpand">True</property>
-                <signal name="clicked" handler="OnCompletePressed" swapped="no"/>
-                <signal name="pressed" handler="OnCompletePressed" swapped="no"/>
-              </object>
-              <packing>
-                <property name="left-attach">1</property>
-                <property name="top-attach">2</property>
-              </packing>
-            </child>
-            <child>
               <object class="GtkSpinButton" id="Order">
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
@@ -167,6 +150,23 @@
               <packing>
                 <property name="left-attach">1</property>
                 <property name="top-attach">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="CompleteButton">
+                <property name="label" translatable="yes">Complete everything</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
+                <property name="halign">center</property>
+                <property name="valign">center</property>
+                <property name="hexpand">True</property>
+                <signal name="clicked" handler="OnCompletePressed" swapped="no"/>
+                <signal name="pressed" handler="OnCompletePressed" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">1</property>
+                <property name="top-attach">2</property>
               </packing>
             </child>
           </object>
