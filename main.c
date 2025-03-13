@@ -123,50 +123,50 @@ void UpdateGrid(GtkGrid* Grid, MagicSquare* Square){
 
 
 void OnOrderChanged(GtkSpinButton* spinButton, gpointer UserData){
+    int new_size = gtk_spin_button_get_value_as_int(spinButton);
+    RegenerateGrid(new_size);
+}
+
+void RegenerateGrid(int new_size){
+    CurrentNumber = 1;
     
-    int NewOrder = gtk_spin_button_get_value_as_int(spinButton);
-    int OldOrder = 0;
-    printf("GridUpdated: %d\n", NewOrder);
-    if (GlobalSquare){
-        OldOrder = GlobalSquare->Width;
-        if (NewOrder == OldOrder) return;
+    if (GlobalSquare != NULL) {
         DestroySquare(GlobalSquare);
+        GlobalSquare = NULL;
     }
 
-    GlobalSquare = NewSquare(NewOrder, NewOrder);
-    Print(GlobalSquare);
-    /*
-    gtk_widget_destroy(GlobalGrid);
-    GlobalGrid = gtk_grid_new();
-    */
+    GlobalSquare = NewSquare(new_size, new_size);
 
-    for (int i=OldOrder-1; i>=0; i--){
-        printf("removed: %d\n", i);
-        gtk_grid_remove_row(GlobalGrid, i);
-        gtk_grid_remove_column(GlobalGrid, i);
+    GList* children;
+    GList* iter;
+    children = gtk_container_get_children(GTK_CONTAINER(GlobalGrid));
+    for (iter = children; iter != NULL; iter = g_list_next(iter)) {
+        gtk_widget_destroy(GTK_WIDGET(iter->data));
     }
+    g_list_free(children);
 
-    for(int i = 0; i< NewOrder; i++)
-    {
-        printf("added: %d\n", i);
-        gtk_grid_insert_column(GlobalGrid, i);
-        gtk_grid_insert_row(GlobalGrid, i);
-    }
 
-    for(int i = 0; i < NewOrder; i++) {
-        for(int j = 0; j < NewOrder; j++) {
-            GtkLabel* Number = gtk_label_new("0");
-            gtk_grid_attach(GlobalGrid, Number, j, i, 1, 1);
-            //GtkWidget* Widget = (GTK_GRID(GlobalGrid), i, j);
+    for (int i = 0; i < GlobalSquare->Height; i++) {
+        for (int j = 0; j < GlobalSquare->Width; j++) {
+            char buffer[10];
+            snprintf(buffer, sizeof(buffer), "%d", 0); 
+            GtkWidget *label = gtk_label_new(buffer);
+
+            PangoAttrList* Attrs = pango_attr_list_new();
+            PangoAttribute* font_desc = pango_attr_scale_new(2);
+            pango_attr_list_insert(Attrs, font_desc);
+
+            gtk_label_set_attributes(GTK_LABEL(label), Attrs);
+            
+            gtk_grid_attach(GTK_GRID(GlobalGrid), label, j, i, 1, 1);
         }
     }
 
-    gtk_grid_set_row_homogeneous(GlobalGrid, true);
-    gtk_grid_set_column_homogeneous(GlobalGrid, true);
 
-    gtk_widget_queue_draw(GTK_WIDGET(GlobalGrid));
+    gtk_widget_show_all(GTK_WIDGET(GlobalGrid));
 
-    //UpdateGrid(GlobalGrid, GlobalSquare);
+    GlobalSquare->CurrentSlot.y = 0;
+    GlobalSquare->CurrentSlot.x = (GlobalSquare->Width/2);
 }
 
 static void OnNextPressed(GtkButton* Button, gpointer UserData){
@@ -193,6 +193,32 @@ static void OnCompletePressed(GtkButton* Button, gpointer UserData){
 void OnMovesetChanged(GtkComboBoxText* ComboBox){
     CurrentMoveset = GetMoveset(gtk_combo_box_text_get_active_text(ComboBox));
     g_print("New Moveset: %s", gtk_combo_box_text_get_active_text(ComboBox));
+
+    RegenerateGrid(GlobalSquare->Width);
+}
+
+void SetGridAttributes(GtkGrid* Grid, MagicSquare* Square){
+    for (int i = 0; i < Square->Height; i++) {
+        for(int j = 0; j < Square->Width; j++) {
+            GtkWidget* widget = gtk_grid_get_child_at(Grid, j, i);
+
+            if (GTK_IS_LABEL(widget)) {
+                PangoAttrList *const Attrs = pango_attr_list_new();
+
+                PangoFontDescription * font_desc = pango_font_description_new();
+                pango_font_description_set_size(font_desc, 36 * PANGO_SCALE);
+                PangoAttribute * attr = pango_attr_font_desc_new(font_desc);
+                pango_attr_list_insert(Attrs, font_desc);
+                gtk_label_set_attributes(GTK_LABEL(widget), Attrs);
+
+                //char buffer[10];
+                //snprintf(buffer, sizeof(buffer), "%d", Square->Grid[j][i]);
+                //printf("(%d, %d) -> %d\n", j, i, Square->Grid[j][i]);
+                //gtk_label_set_text(GTK_LABEL(widget), buffer);
+            }
+        }
+    }
+
 }
 
 int main(int argc, char *argv[]) {
@@ -215,7 +241,13 @@ int main(int argc, char *argv[]) {
     GtkSpinButton* Order = GTK_SPIN_BUTTON(gtk_builder_get_object(builder, "Order"));
     gtk_spin_button_set_range(Order, 3, 21);
     g_signal_connect(Order, "value-changed", G_CALLBACK(OnOrderChanged), NULL);
-    gtk_spin_button_set_value(Order, 5);
+
+    gtk_spin_button_set_range(GTK_SPIN_BUTTON(Order), 3, 21);
+    gtk_spin_button_set_increments(GTK_SPIN_BUTTON(Order), 1, 5);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(Order), 5);
+    gtk_spin_button_set_numeric(GTK_SPIN_BUTTON(Order), TRUE);
+    gtk_spin_button_set_wrap(GTK_SPIN_BUTTON(Order), FALSE);
+    gtk_spin_button_set_update_policy(GTK_SPIN_BUTTON(Order), GTK_UPDATE_ALWAYS);
 
     //Moveset
     GtkComboBoxText* MovesetBox = GTK_COMBO_BOX_TEXT(gtk_builder_get_object(builder, "Moveset"));
