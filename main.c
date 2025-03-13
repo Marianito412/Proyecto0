@@ -22,7 +22,6 @@ Moveset* CurrentMoveset = &NorthWestMoveset;
 
 GtkPaned* Paned = NULL;
 GtkGrid* GlobalGrid = NULL;
-
 GtkLabel* sums = NULL;  // Etiqueta para mostrar todas las sumas
 
 // Función para actualizar las sumas en la interfaz
@@ -76,9 +75,41 @@ void UpdateSums(MagicSquare* Square) {
     gtk_label_set_text(sums, sumsText);
 }
 
+Coordinate GetRandomStartingPosition(MagicSquare* Square, Moveset Moves){
 
-void Test(GtkSpinButton* Button, gpointer UserData){
-    printf("Value Changed");
+    Coordinate* ValidCoords = (Coordinate*)malloc((Square->Height*Square->Height)*sizeof(Coordinate));
+
+    int FoundCoords = 0;
+
+    // O(fuckyou)
+    for (int i = 0; i < Square->Height;i++){
+        for (int j = 0; j < Square->Width; j++){
+            printf("\nTrying for (%d, %d)\n", j, i);
+            MagicSquare* TestBench = CopySquare(Square);
+            TestBench->CurrentSlot.x = j;
+            TestBench->CurrentSlot.y = i;
+
+            for (int value = 1; value <= TestBench->Width*TestBench->Width; value++){
+                ProcessNextMove(TestBench, &Moves, value);
+            }
+
+            if (IsMagicSquare(TestBench))
+            {
+                Coordinate NewValidCoords;
+                NewValidCoords.x = j;
+                NewValidCoords.y = i;
+                ValidCoords[FoundCoords] = NewValidCoords;
+                FoundCoords++;
+            }
+            DestroySquare(TestBench);
+            TestBench = NULL;
+        }
+    }
+    printf("Got here\n");
+    Coordinate SelectedCoords = ValidCoords[rand()%FoundCoords];
+    free (ValidCoords);
+    return SelectedCoords;
+    
 }
 
 Moveset* GetMoveset(gchararray moveset){
@@ -121,7 +152,6 @@ void UpdateGrid(GtkGrid* Grid, MagicSquare* Square){
     }
 }
 
-
 void OnOrderChanged(GtkSpinButton* spinButton, gpointer UserData){
     int new_size = gtk_spin_button_get_value_as_int(spinButton);
     RegenerateGrid(new_size);
@@ -129,7 +159,7 @@ void OnOrderChanged(GtkSpinButton* spinButton, gpointer UserData){
 
 void RegenerateGrid(int new_size){
     CurrentNumber = 1;
-    
+
     if (GlobalSquare != NULL) {
         DestroySquare(GlobalSquare);
         GlobalSquare = NULL;
@@ -144,7 +174,6 @@ void RegenerateGrid(int new_size){
         gtk_widget_destroy(GTK_WIDGET(iter->data));
     }
     g_list_free(children);
-
 
     for (int i = 0; i < GlobalSquare->Height; i++) {
         for (int j = 0; j < GlobalSquare->Width; j++) {
@@ -162,11 +191,13 @@ void RegenerateGrid(int new_size){
         }
     }
 
-
     gtk_widget_show_all(GTK_WIDGET(GlobalGrid));
 
-    GlobalSquare->CurrentSlot.y = 0;
-    GlobalSquare->CurrentSlot.x = (GlobalSquare->Width/2);
+    Coordinate NewStart = GetRandomStartingPosition(GlobalSquare, *CurrentMoveset);
+    GlobalSquare->CurrentSlot.y = NewStart.y;
+    GlobalSquare->CurrentSlot.x = NewStart.x;//(GlobalSquare->Width/2);
+    //GlobalSquare->CurrentSlot.y = 0;
+    //GlobalSquare->CurrentSlot.x = (GlobalSquare->Width/2);
 }
 
 static void OnNextPressed(GtkButton* Button, gpointer UserData){
@@ -174,8 +205,7 @@ static void OnNextPressed(GtkButton* Button, gpointer UserData){
     ProcessNextMove(GlobalSquare, CurrentMoveset, CurrentNumber);
     CurrentNumber++;
     UpdateGrid(GlobalGrid, GlobalSquare);
-    UpdateSums(GlobalSquare);  
-
+    UpdateSums(GlobalSquare);
 }
 
 static void OnCompletePressed(GtkButton* Button, gpointer UserData){
@@ -185,8 +215,6 @@ static void OnCompletePressed(GtkButton* Button, gpointer UserData){
     }
     UpdateGrid(GlobalGrid, GlobalSquare);
     UpdateSums(GlobalSquare);  
-
-
     Print(GlobalSquare);
 }
 
@@ -195,30 +223,6 @@ void OnMovesetChanged(GtkComboBoxText* ComboBox){
     g_print("New Moveset: %s", gtk_combo_box_text_get_active_text(ComboBox));
 
     RegenerateGrid(GlobalSquare->Width);
-}
-
-void SetGridAttributes(GtkGrid* Grid, MagicSquare* Square){
-    for (int i = 0; i < Square->Height; i++) {
-        for(int j = 0; j < Square->Width; j++) {
-            GtkWidget* widget = gtk_grid_get_child_at(Grid, j, i);
-
-            if (GTK_IS_LABEL(widget)) {
-                PangoAttrList *const Attrs = pango_attr_list_new();
-
-                PangoFontDescription * font_desc = pango_font_description_new();
-                pango_font_description_set_size(font_desc, 36 * PANGO_SCALE);
-                PangoAttribute * attr = pango_attr_font_desc_new(font_desc);
-                pango_attr_list_insert(Attrs, font_desc);
-                gtk_label_set_attributes(GTK_LABEL(widget), Attrs);
-
-                //char buffer[10];
-                //snprintf(buffer, sizeof(buffer), "%d", Square->Grid[j][i]);
-                //printf("(%d, %d) -> %d\n", j, i, Square->Grid[j][i]);
-                //gtk_label_set_text(GTK_LABEL(widget), buffer);
-            }
-        }
-    }
-
 }
 
 int main(int argc, char *argv[]) {
@@ -253,7 +257,6 @@ int main(int argc, char *argv[]) {
     GtkComboBoxText* MovesetBox = GTK_COMBO_BOX_TEXT(gtk_builder_get_object(builder, "Moveset"));
     g_signal_connect(MovesetBox, "changed", G_CALLBACK(OnMovesetChanged), NULL);
 
-
     //Buttons
     GtkButton* Next = GTK_BUTTON(gtk_builder_get_object(builder, "NextButton"));
     g_signal_connect(Next, "clicked", G_CALLBACK(OnNextPressed), NULL);
@@ -263,49 +266,9 @@ int main(int argc, char *argv[]) {
 
     UpdateSums(GlobalSquare);
 
-
     GlobalSquare->CurrentSlot.y = 0;
     GlobalSquare->CurrentSlot.x = (GlobalSquare->Width/2);
     Print(GlobalSquare);
-
-    /*
-    GlobalGrid = GTK_GRID(gtk_builder_get_object(builder, "Grid"));
-    for(int i = 0; i<10; i++)
-    {
-        gtk_grid_insert_column(GTK_GRID(GlobalGrid), 1);
-        gtk_grid_insert_row(GTK_GRID(GlobalGrid), 1);
-    }
-
-    for(int i = 0; i < 5; i++) {
-        for(int j = 0; j < 5; j++) {
-            GtkWidget* Number = gtk_label_new("0");
-            GtkWidget* Widget = (GTK_GRID(GlobalGrid), i, j);
-            if (Widget){
-                gtk_widget_destroy(Widget);
-            }
-            
-            gtk_grid_attach(GTK_GRID(GlobalGrid), Number, i, j, 1, 1);
-        }
-    }
-    */
-
-   /*
-    MagicSquare* Test = NewSquare(5,5);
-    Test->CurrentSlot.x = 3;
-    Test->CurrentSlot.y = 1;
-
-    Print(Test);    
-
-    for (int i = 1; i<=5*5; i++){
-        printf("\n\n");
-        ProcessNextMove(Test, &NorthWestMoveset, i);
-        Print(Test);
-    }
-
-    CalculateSums(Test);
-    UpdateGrid(GTK_GRID(Grid), Test);
-    DestroySquare(Test);
-    */
 
     gtk_widget_show_all(window);
     gtk_main();

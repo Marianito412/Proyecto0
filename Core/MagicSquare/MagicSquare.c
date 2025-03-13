@@ -106,3 +106,50 @@ void Print(MagicSquare* Square){
         printf("\n");
     }
 }
+
+MagicSquare* CopySquare(MagicSquare* Source){
+    MagicSquare* Copy = NewSquare(Source->Width, Source->Height);
+    for (int i = 0; i < Source->Height;i++){
+        for (int j = 0; j < Source->Width; j++){
+            Copy->Grid[j][i] = Source->Grid[j][i];
+        }
+    }
+    return Copy;
+}
+
+bool IsMagicSquare(MagicSquare* Square){
+    int sum = 0;
+    int magicConstant = Square->Width * (Square->Width * Square->Width + 1) / 2;
+
+    // Sumar filas
+    for (int i = 0; i < Square->Height; i++) {
+        sum = 0;
+        for (int j = 0; j < Square->Width; j++) {
+            sum += Square->Grid[i][j];
+        }
+        if (sum != magicConstant) return false;
+    }
+    for (int j = 0; j < Square->Width; j++) {
+        sum = 0;
+        for (int i = 0; i < Square->Height; i++) {
+            sum += Square->Grid[i][j];
+        }
+        if (sum != magicConstant) return false;
+    }
+
+    // Sumar diagonal principal
+    sum = 0;
+    for (int i = 0; i < Square->Height; i++) {
+        sum += Square->Grid[i][i];
+    }
+    if (sum != magicConstant) return false;
+
+    // Sumar diagonal secundaria
+    sum = 0;
+    for (int i = 0; i < Square->Height; i++) {
+        sum += Square->Grid[i][Square->Width - 1 - i];
+    }
+    if (sum != magicConstant) return false;
+
+    return true;
+}
