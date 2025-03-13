@@ -39,6 +39,14 @@ MagicSquare* NewSquare(int Width, int Height){
     return Square;
 }
 
+void DestroySquare(MagicSquare* Square){
+    for (int i = 0; i<Square->Height; i++){
+        free(Square->Grid[i]);
+    }
+    free(Square->Grid);
+    free(Square);
+}
+
 /*Private*/
 void WrapAround(MagicSquare* Square, Coordinate* Coords){
     //Horizontal borders
